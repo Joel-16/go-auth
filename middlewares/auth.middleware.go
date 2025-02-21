@@ -29,12 +29,12 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		})
 
 		if err != nil || !token.Valid {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			config.Respond(w, http.StatusUnauthorized, "Invalid token")
 			return
 		}
 		userID, ok := claims["user_id"].(string)
 		if !ok {
-			http.Error(w, "Invalid token payload", http.StatusUnauthorized)
+			config.Respond(w, http.StatusUnauthorized, "Invalid token payload")
 			return
 		}
 		user_id, _ := strconv.ParseUint(userID, 10, 32)
