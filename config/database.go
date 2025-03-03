@@ -40,4 +40,6 @@ func ConnectDB() {
 
 	// Auto-migrate models
 	DB.AutoMigrate(&models.User{})
+	DB.AutoMigrate(&models.Blog{})
+	DB.AutoMigrate(&models.Comment{})
 }

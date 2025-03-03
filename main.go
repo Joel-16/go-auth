@@ -15,6 +15,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Mount("/auth", routes.AuthRoutes())
 	r.Mount("/users", routes.UserRoutes())
+	r.Mount("/blogs", routes.BlogRoutes())
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Server is running"))

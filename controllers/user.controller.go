@@ -10,25 +10,17 @@ import (
 
 // GetUser - Fetch a single user by ID
 func GetUser(w http.ResponseWriter, r *http.Request) {
-	var user models.User
-	userID, ok := r.Context().Value("user_id").(uint)
-	if !ok || userID == 0 {
+	user, ok := r.Context().Value("user").(models.User)
+	if !ok {
 		config.Respond(w, http.StatusUnauthorized, "Invalid or missing user ID")
 		return
 	}
-
-	if err := config.DB.First(&user, "id=?", userID).Error; err != nil {
-		config.Respond(w, http.StatusBadRequest, "Invalid user")
-		return
-	}
-	user.Password = ""
 	config.Respond(w, http.StatusOK, user)
 
 }
 
 // UpdateUser - Update a user
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
-	var user models.User
 	var profile struct {
 		Name string `json:"name"`
 		Age  int    `json:"age"`
@@ -38,20 +30,15 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		config.Respond(w, http.StatusBadRequest, "Invalid request")
 		return
 	}
-	userID, ok := r.Context().Value("user_id").(uint)
+	user, ok := r.Context().Value("user").(models.User)
 
-	if !ok || userID == 0 {
+	if !ok {
 		config.Respond(w, http.StatusUnauthorized, "Invalid or missing user ID")
 		return
 	}
 
-	if err := config.DB.First(&user, "id=?", userID).Error; err != nil {
-		config.Respond(w, http.StatusUnauthorized, struct{}{})
-		return
-	}
-
 	user.Name = profile.Name
-	user.Age = profile.Age
+	user.Age = &profile.Age
 
 	config.DB.Save(&user)
 	user.Password = ""

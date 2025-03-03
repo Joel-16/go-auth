@@ -13,28 +13,28 @@ import (
 func Signup(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		config.Respond(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
 	var existingUser models.User
 	result := config.DB.First(&existingUser, "email = ?", user.Email)
 	if result.RowsAffected > 0 {
-		http.Error(w, "User already exists", http.StatusConflict)
+		config.Respond(w, http.StatusBadRequest, "Email already associated witha another account")
 		return
 	}
 
 	hashedPassword, err := user.HashPassword(user.Password)
 	if err != nil {
 		log.Println("Error hashing password:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		config.Respond(w, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 
 	user.Password = hashedPassword
 	if err := config.DB.Create(&user).Error; err != nil {
 		log.Println("Error creating user:", err)
-		http.Error(w, "Failed to create user", http.StatusInternalServerError)
+		config.Respond(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
 	user.Password = ""
