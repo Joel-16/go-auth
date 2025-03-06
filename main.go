@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -11,6 +12,10 @@ import (
 )
 
 func main() {
+	if err := config.EnvValidation(); err != nil {
+		errors, _ := json.MarshalIndent(err, "", " ")
+		log.Fatal(errors)
+	}
 	config.ConnectDB()
 	r := chi.NewRouter()
 	r.Mount("/auth", routes.AuthRoutes())
